@@ -140,28 +140,6 @@ export default function Details({ route }) {
               {weatherData.daily?.temperature_2m_min[0].toFixed(0)}
             </Text>
           </View>
-          <View style={styles.dailyContainer}>
-            <Text style={{ padding: 10, fontWeight: 'bold' }}>Daily Forecast</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.dailyContainerRow}>
-                {weatherData.daily &&
-                  Array.isArray(weatherData.daily.time) &&
-                  weatherData.daily.time.map((day, index) => (
-                    <View key={index} style={styles.dailyContainerColumn}>
-                      <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
-                      <View style={styles.temperatureColumn}>
-                        <Text style={styles.smallText}>
-                          {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
-                        </Text>
-                        <Text style={styles.smallText}>
-                          {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-              </View>
-            </ScrollView>
-          </View>
           <View style={styles.hourlyContainer}>
             <Text style={{ padding: 10, fontWeight: 'bold' }}>Hourly Forecast</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -179,6 +157,28 @@ export default function Details({ route }) {
                         ) : (
                           <Text style={styles.smallText}>-</Text>
                         )}
+                      </View>
+                    </View>
+                  ))}
+              </View>
+            </ScrollView>
+          </View>
+          <View style={styles.dailyContainer}>
+            <Text style={{ padding: 10, fontWeight: 'bold' }}>Daily Forecast</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.dailyContainerRow}>
+                {weatherData.daily &&
+                  Array.isArray(weatherData.daily.time) &&
+                  weatherData.daily.time.map((day, index) => (
+                    <View key={index} style={styles.dailyContainerColumn}>
+                      <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
+                      <View style={styles.temperatureColumn}>
+                        <Text style={styles.smallText}>
+                          {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
+                        </Text>
+                        <Text style={styles.smallText}>
+                          {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
+                        </Text>
                       </View>
                     </View>
                   ))}
