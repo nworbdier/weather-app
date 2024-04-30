@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, RefreshControl, ScrollView, StyleSheet, Image } from 'react-native';
 
 // Function to map weather code to description
-const mapWeatherCodeToDescription = (code) => {
+const mapWeatherCodeToDescription = (code: number) => {
   switch (code) {
     case 0:
       return 'Clear Sky';
@@ -65,9 +65,17 @@ const mapWeatherCodeToDescription = (code) => {
   }
 };
 
-export default function Details({ route }) {
+interface RouteParams {
+  params: {
+    name: string;
+    lat: number;
+    long: number;
+  };
+}
+
+export default function Details({ route }: { route: RouteParams }) {
   const { name, lat, long } = route.params;
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchWeatherData = async () => {
@@ -96,14 +104,14 @@ export default function Details({ route }) {
     fetchWeatherData(); // Fetch weather data again
   };
 
-  const getDayOfWeek = (dateString) => {
+  const getDayOfWeek = (dateString: string): string => {
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const date = new Date(`${dateString}T00:00:00`); // Add T00:00:00 to create a valid ISO date string
     const dayIndex = date.getDay();
     return daysOfWeek[dayIndex];
   };
 
-  const formatTime = (time) => {
+  const formatTime = (time: string): string => {
     if (time === 'now') {
       return 'Now';
     }
@@ -135,18 +143,18 @@ export default function Details({ route }) {
             <Text style={styles.temperature2}>
               {mapWeatherCodeToDescription(weatherData.current?.weather_code)}
             </Text>
-            <Text style={styles.temperature2}>
+            <Text style={styles.temperature3}>
               H:{weatherData.daily?.temperature_2m_max[0].toFixed(0)}° | L:
               {weatherData.daily?.temperature_2m_min[0].toFixed(0)}
             </Text>
           </View>
           <View style={styles.hourlyContainer}>
-            <Text style={{ padding: 10, fontWeight: 'bold' }}>Hourly Forecast</Text>
+            <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>Hourly Forecast</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.hourlyContainerRow}>
                 {weatherData.hourly &&
                   Array.isArray(weatherData.hourly.time) &&
-                  weatherData.hourly.time.slice(1, 26).map((day, index) => (
+                  weatherData.hourly.time.slice(1, 26).map((day: string, index: number) => (
                     <View key={index} style={styles.hourlyContainerColumn}>
                       <View style={styles.temperatureColumn}>
                         <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
@@ -164,12 +172,12 @@ export default function Details({ route }) {
             </ScrollView>
           </View>
           <View style={styles.dailyContainer}>
-            <Text style={{ padding: 10, fontWeight: 'bold' }}>Daily Forecast</Text>
+            <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>Daily Forecast</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.dailyContainerRow}>
                 {weatherData.daily &&
                   Array.isArray(weatherData.daily.time) &&
-                  weatherData.daily.time.map((day, index) => (
+                  weatherData.daily.time.map((day: string, index: number) => (
                     <View key={index} style={styles.dailyContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
                       <View style={styles.temperatureColumn}>
@@ -213,6 +221,7 @@ const styles = StyleSheet.create({
   image: {
     width: 100,
     height: 100,
+    marginBottom: 10,
   },
   temperature: {
     fontSize: 40,
@@ -224,42 +233,54 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  dailyContainer: {
-    borderRadius: 5,
-    borderWidth: 2,
+  temperature3: {
+    fontSize: 20,
+    marginBottom: 10,
+  },
+
+  hourlyContainer: {
+    borderRadius: 10,
+    borderWidth: 1,
     minWidth: '100%',
     maxWidth: '100%',
     marginTop: 20,
+    backgroundColor: 'white',
+  },
+  hourlyContainerRow: {
+    flexDirection: 'row',
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  hourlyContainerColumn: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center', // Add this line
+    padding: 5,
   },
   dateText: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
   },
+  dailyContainer: {
+    borderRadius: 10,
+    borderWidth: 1,
+    minWidth: '100%',
+    maxWidth: '100%',
+    marginTop: 20,
+    backgroundColor: 'white',
+  },
   dailyContainerRow: {
     flexDirection: 'row',
     paddingBottom: 10,
     paddingLeft: 10,
+    paddingRight: 10,
   },
   dailyContainerColumn: {
     flexDirection: 'column',
     alignItems: 'center',
-  },
-  hourlyContainer: {
-    borderRadius: 5,
-    borderWidth: 2,
-    minWidth: '100%',
-    maxWidth: '100%',
-    marginTop: 20,
-  },
-  hourlyContainerRow: {
-    flexDirection: 'row',
-    paddingBottom: 10,
-    paddingLeft: 10,
-  },
-  hourlyContainerColumn: {
-    flexDirection: 'column',
-    alignItems: 'center',
+    justifyContent: 'center', // Add this line
     padding: 5,
   },
   temperatureColumn: {
@@ -269,5 +290,6 @@ const styles = StyleSheet.create({
   smallText: {
     fontSize: 20,
     padding: 5,
+    textAlign: 'center',
   },
 });
