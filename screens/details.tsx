@@ -74,7 +74,7 @@ export default function Details({ route }) {
     try {
       // Make API call to fetch weather data
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,apparent_temperature,is_day,weather_code&hourly=temperature_2m,apparent_temperature,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=16&models=best_match`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,apparent_temperature,is_day,weather_code&hourly=temperature_2m,apparent_temperature,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&past_hours=1&forecast_days=16&models=best_match`
       );
       const data = await response.json();
 
@@ -94,6 +94,24 @@ export default function Details({ route }) {
   const onRefresh = () => {
     setRefreshing(true); // Enable refreshing indicator
     fetchWeatherData(); // Fetch weather data again
+  };
+
+  const getDayOfWeek = (dateString) => {
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const date = new Date(`${dateString}T00:00:00`); // Add T00:00:00 to create a valid ISO date string
+    const dayIndex = date.getDay();
+    return daysOfWeek[dayIndex];
+  };
+
+  const formatTime = (time) => {
+    if (time === 'now') {
+      return 'Now';
+    }
+
+    const hours = new Date(time).getHours();
+    const amPm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    return `${formattedHours} ${amPm}`;
   };
 
   return (
@@ -123,43 +141,49 @@ export default function Details({ route }) {
             </Text>
           </View>
           <View style={styles.dailyContainer}>
-            <Text style={{ padding: 10 }}>Daily Forecast</Text>
-            <View style={styles.dailyContainerRow}>
-              {weatherData.daily &&
-                Array.isArray(weatherData.daily.time) &&
-                weatherData.daily.time.map((day, index) => (
-                  <View key={index} style={styles.dailyContainerColumn}>
-                    <View style={styles.temperatureColumn}>
-                      <Text style={styles.smallText}>
-                        {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
-                      </Text>
-                      <Text style={styles.smallText}>
-                        {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
-                      </Text>
+            <Text style={{ padding: 10, fontWeight: 'bold' }}>Daily Forecast</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.dailyContainerRow}>
+                {weatherData.daily &&
+                  Array.isArray(weatherData.daily.time) &&
+                  weatherData.daily.time.map((day, index) => (
+                    <View key={index} style={styles.dailyContainerColumn}>
+                      <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
+                      <View style={styles.temperatureColumn}>
+                        <Text style={styles.smallText}>
+                          {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
+                        </Text>
+                        <Text style={styles.smallText}>
+                          {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                ))}
-            </View>
+                  ))}
+              </View>
+            </ScrollView>
           </View>
           <View style={styles.hourlyContainer}>
-            <Text style={{ padding: 10 }}>Hourly Forecast</Text>
-            <View style={styles.hourlyContainerRow}>
-              {weatherData.hourly &&
-                Array.isArray(weatherData.hourly.time) &&
-                weatherData.hourly.time.map((day, index) => (
-                  <View key={index} style={styles.hourlyContainerColumn}>
-                    <View style={styles.temperatureColumn}>
-                      {weatherData.hourly.temperature_2m[index] !== null ? (
-                        <Text style={styles.smallText}>
-                          {weatherData.hourly.temperature_2m[index].toFixed(0)}°
-                        </Text>
-                      ) : (
-                        <Text style={styles.smallText}>Hour {index}: N/A</Text>
-                      )}
+            <Text style={{ padding: 10, fontWeight: 'bold' }}>Hourly Forecast</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.hourlyContainerRow}>
+                {weatherData.hourly &&
+                  Array.isArray(weatherData.hourly.time) &&
+                  weatherData.hourly.time.slice(1, 26).map((day, index) => (
+                    <View key={index} style={styles.hourlyContainerColumn}>
+                      <View style={styles.temperatureColumn}>
+                        <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
+                        {weatherData.hourly.temperature_2m[index + 1] !== null ? (
+                          <Text style={styles.smallText}>
+                            {weatherData.hourly.temperature_2m[index + 1].toFixed(0)}°
+                          </Text>
+                        ) : (
+                          <Text style={styles.smallText}>-</Text>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                ))}
-            </View>
+                  ))}
+              </View>
+            </ScrollView>
           </View>
         </View>
       )}
@@ -196,7 +220,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   temperature2: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -206,6 +230,11 @@ const styles = StyleSheet.create({
     minWidth: '100%',
     maxWidth: '100%',
     marginTop: 20,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   dailyContainerRow: {
     flexDirection: 'row',
@@ -231,6 +260,7 @@ const styles = StyleSheet.create({
   hourlyContainerColumn: {
     flexDirection: 'column',
     alignItems: 'center',
+    padding: 5,
   },
   temperatureColumn: {
     alignItems: 'center',
