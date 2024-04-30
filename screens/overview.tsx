@@ -10,18 +10,35 @@ type OverviewScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Ov
 export default function Overview() {
   const navigation = useNavigation<OverviewScreenNavigationProps>();
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+
+  interface SearchResult {
+    name: string;
+    lat: number;
+    long: number;
+    admin1: string;
+    admin2: string;
+    country: string;
+    id: string | number;
+  }
 
   // Debounce function
-  const debounce = useCallback((func, delay) => {
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func.apply(this, args);
-      }, delay);
-    };
-  }, []);
+  const debounce = useCallback(
+    <T extends (...args: any[]) => void>(
+      func: T,
+      delay: number
+    ): ((...args: Parameters<T>) => void) => {
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+      return function (this: any, ...args: Parameters<T>) {
+        clearTimeout(timeoutId!);
+        timeoutId = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    },
+    []
+  );
 
   const handleSearch = useCallback(async (text: string) => {
     setSearchText(text);

@@ -65,6 +65,70 @@ const mapWeatherCodeToDescription = (code: number) => {
   }
 };
 
+// Function to map weather code to description
+const mapWeatherCodeToImage = (code: number) => {
+  switch (code) {
+    case 0:
+      return require('../assets/WeatherIcons/day_clear_sky.png');
+    case 1:
+      return require('../assets/WeatherIcons/day_foggy.png');
+    case 2:
+      return require('../assets/WeatherIcons/day_cloudy.png');
+    case 3:
+      return require('../assets/WeatherIcons/cloudy.png');
+    case 45:
+      return require('../assets/WeatherIcons/foggy.png');
+    case 48:
+      return require('../assets/WeatherIcons/foggy.png');
+    case 51:
+      return require('../assets/WeatherIcons/day_rain_light.png');
+    case 53:
+      return require('../assets/WeatherIcons/day_rain_moderate.png');
+    case 55:
+      return require('../assets/WeatherIcons/day_rain.png');
+    case 56:
+      return require('../assets/WeatherIcons/day_rain_light.png');
+    case 57:
+      return require('../assets/WeatherIcons/day_rain.png');
+    case 61:
+      return require('../assets/WeatherIcons/day_rain_light.png');
+    case 63:
+      return require('../assets/WeatherIcons/day_rain_moderate.png');
+    case 65:
+      return require('../assets/WeatherIcons/day_rain.png');
+    case 66:
+      return require('../assets/WeatherIcons/day_rain_light.png');
+    case 67:
+      return require('../assets/WeatherIcons/day_rain.png');
+    case 71:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 73:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 75:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 77:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 80:
+      return require('../assets/WeatherIcons/day_rain_light.png');
+    case 81:
+      return require('../assets/WeatherIcons/day_rain_moderate.png');
+    case 82:
+      return require('../assets/WeatherIcons/day_thunderstorm_light.png');
+    case 85:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 86:
+      return require('../assets/WeatherIcons/day_snow.png');
+    case 95:
+      return require('../assets/WeatherIcons/day_thunderstorm_light.png');
+    case 96:
+      return require('../assets/WeatherIcons/day_rain_hail.png');
+    case 99:
+      return require('../assets/WeatherIcons/day_rain_hail.png');
+    default:
+      return 'Unknown';
+  }
+};
+
 interface RouteParams {
   params: {
     name: string;
@@ -88,6 +152,8 @@ export default function Details({ route }: { route: RouteParams }) {
 
       // Store the entire weather data object
       setWeatherData(data);
+
+      console.log(data.daily.weather_code);
       setRefreshing(false); // Disable refreshing after successful fetch
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -133,7 +199,7 @@ export default function Details({ route }: { route: RouteParams }) {
         <View>
           <View style={styles.infoContainer}>
             <Image
-              source={require('../assets/WeatherIcons/Cloudy Day Sun Icon.png')}
+              source={mapWeatherCodeToImage(weatherData.current?.weather_code)}
               style={styles.image}
               resizeMode="contain"
             />
@@ -156,16 +222,19 @@ export default function Details({ route }: { route: RouteParams }) {
                   Array.isArray(weatherData.hourly.time) &&
                   weatherData.hourly.time.slice(1, 26).map((day: string, index: number) => (
                     <View key={index} style={styles.hourlyContainerColumn}>
-                      <View style={styles.temperatureColumn}>
-                        <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
-                        {weatherData.hourly.temperature_2m[index + 1] !== null ? (
-                          <Text style={styles.smallText}>
-                            {weatherData.hourly.temperature_2m[index + 1].toFixed(0)}°
-                          </Text>
-                        ) : (
-                          <Text style={styles.smallText}>-</Text>
-                        )}
-                      </View>
+                      <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
+                      <Image
+                        source={mapWeatherCodeToImage(weatherData.hourly.weather_code[index + 1])}
+                        style={styles.image2}
+                        resizeMode="contain"
+                      />
+                      {weatherData.hourly.temperature_2m[index + 1] !== null ? (
+                        <Text style={styles.smallText}>
+                          {weatherData.hourly.temperature_2m[index + 1].toFixed(0)}°
+                        </Text>
+                      ) : (
+                        <Text style={styles.smallText}>-</Text>
+                      )}
                     </View>
                   ))}
               </View>
@@ -180,14 +249,17 @@ export default function Details({ route }: { route: RouteParams }) {
                   weatherData.daily.time.map((day: string, index: number) => (
                     <View key={index} style={styles.dailyContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
-                      <View style={styles.temperatureColumn}>
-                        <Text style={styles.smallText}>
-                          {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
-                        </Text>
-                        <Text style={styles.smallText}>
-                          {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
-                        </Text>
-                      </View>
+                      <Image
+                        source={mapWeatherCodeToImage(weatherData.daily.weather_code[index])}
+                        style={styles.image2}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.smallText}>
+                        {weatherData.daily.temperature_2m_max[index].toFixed(0)}°
+                      </Text>
+                      <Text style={styles.smallText}>
+                        {weatherData.daily.temperature_2m_min[index].toFixed(0)}°
+                      </Text>
                     </View>
                   ))}
               </View>
@@ -221,6 +293,11 @@ const styles = StyleSheet.create({
   image: {
     width: 100,
     height: 100,
+    marginBottom: 10,
+  },
+  image2: {
+    width: 50,
+    height: 50,
     marginBottom: 10,
   },
   temperature: {
@@ -282,10 +359,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', // Add this line
     padding: 5,
-  },
-  temperatureColumn: {
-    alignItems: 'center',
-    flexDirection: 'column',
   },
   smallText: {
     fontSize: 20,
