@@ -3,7 +3,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, TextInput, FlatList, Text, TouchableOpacity } from 'react-native';
 
-import { RootStackParamList } from '../navigation';
+import { RootStackParamList } from '../App';
 
 type OverviewScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Overview'>;
 
@@ -14,8 +14,8 @@ export default function Overview() {
 
   interface SearchResult {
     name: string;
-    lat: number;
-    long: number;
+    latitude: number; // Ensure this property is included
+    longitude: number; // Ensure this property is included
     admin1: string;
     admin2: string;
     country: string;
@@ -47,7 +47,7 @@ export default function Overview() {
         `https://customer-geocoding-api.open-meteo.com/v1/search?apikey=&name=${text}&count=10&format=json`
       );
       const data = await response.json();
-      setSearchResults(data);
+      setSearchResults(data.results); // Update this line
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
@@ -84,23 +84,26 @@ export default function Overview() {
         )}
       </View>
       <FlatList
-        data={searchResults.results}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Details', {
-                name: item.name,
-                lat: item.latitude,
-                long: item.longitude,
-                admin1: item.admin1,
-                admin2: item.admin2,
-                country: item.country,
-              })
-            }
-            style={styles.item}>
-            <Text>{`${item.name}, ${item.admin1}, ${item.admin2}, ${item.country}`}</Text>
-          </TouchableOpacity>
-        )}
+        data={searchResults}
+        renderItem={({ item }) => {
+          const searchResult = item as SearchResult; // Explicitly cast item to SearchResult
+          return (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('Details', {
+                  name: searchResult.name,
+                  lat: searchResult.latitude,
+                  long: searchResult.longitude,
+                  admin1: searchResult.admin1,
+                  admin2: searchResult.admin2,
+                  country: searchResult.country,
+                })
+              }
+              style={styles.item}>
+              <Text>{`${searchResult.name}, ${searchResult.admin1}, ${searchResult.admin2}, ${searchResult.country}`}</Text>
+            </TouchableOpacity>
+          );
+        }}
         keyExtractor={(item) => item.id.toString()}
       />
     </View>

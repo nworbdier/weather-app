@@ -1,5 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState, useEffect } from 'react';
 import { View, Text, RefreshControl, ScrollView, StyleSheet, Image } from 'react-native';
+
+import { RootStackParamList } from '../App';
+
+type DetailsScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Overview'>;
 
 // Function to map weather code to description
 const mapWeatherCodeToDescription = (code: number) => {
@@ -138,6 +144,7 @@ interface RouteParams {
 }
 
 export default function Details({ route }: { route: RouteParams }) {
+  const navigation = useNavigation<DetailsScreenNavigationProps>();
   const { name, lat, long } = route.params;
   const [weatherData, setWeatherData] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -146,14 +153,14 @@ export default function Details({ route }: { route: RouteParams }) {
     try {
       // Make API call to fetch weather data
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,apparent_temperature,is_day,weather_code&hourly=temperature_2m,apparent_temperature,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&past_hours=1&forecast_days=16&models=best_match`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&past_hours=1&forecast_days=16&models=best_match`
       );
       const data = await response.json();
 
       // Store the entire weather data object
       setWeatherData(data);
 
-      console.log(data.daily.weather_code);
+      // console.log(data.daily.weather_code);
       setRefreshing(false); // Disable refreshing after successful fetch
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -214,14 +221,14 @@ export default function Details({ route }: { route: RouteParams }) {
               {weatherData.daily?.temperature_2m_min[0].toFixed(0)}
             </Text>
           </View>
-          <View style={styles.hourlyContainer}>
+          <View style={styles.fullContainer}>
             <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>Hourly Forecast</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.hourlyContainerRow}>
+              <View style={styles.fullContainerRow}>
                 {weatherData.hourly &&
                   Array.isArray(weatherData.hourly.time) &&
                   weatherData.hourly.time.slice(1, 26).map((day: string, index: number) => (
-                    <View key={index} style={styles.hourlyContainerColumn}>
+                    <View key={index} style={styles.fullContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
                       <Image
                         source={mapWeatherCodeToImage(weatherData.hourly.weather_code[index + 1])}
@@ -240,14 +247,14 @@ export default function Details({ route }: { route: RouteParams }) {
               </View>
             </ScrollView>
           </View>
-          <View style={styles.dailyContainer}>
+          <View style={styles.fullContainer}>
             <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>Daily Forecast</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.dailyContainerRow}>
+              <View style={styles.fullContainerRow}>
                 {weatherData.daily &&
                   Array.isArray(weatherData.daily.time) &&
                   weatherData.daily.time.map((day: string, index: number) => (
-                    <View key={index} style={styles.dailyContainerColumn}>
+                    <View key={index} style={styles.fullContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
                       <Image
                         source={mapWeatherCodeToImage(weatherData.daily.weather_code[index])}
@@ -264,6 +271,15 @@ export default function Details({ route }: { route: RouteParams }) {
                   ))}
               </View>
             </ScrollView>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={styles.halfContainer}>
+              <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>UV Index</Text>
+            </View>
+            <View style={styles.halfContainer}>
+              <Text style={{ padding: 10, fontWeight: 'bold', fontSize: 20 }}>Feels Like</Text>
+              <Text>{weatherData.current.apparent_temperature.toFixed(0)}°</Text>
+            </View>
           </View>
         </View>
       )}
@@ -291,13 +307,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     marginBottom: 10,
   },
   image2: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     marginBottom: 10,
   },
   temperature: {
@@ -314,8 +330,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
   },
-
-  hourlyContainer: {
+  fullContainer: {
     borderRadius: 10,
     borderWidth: 1,
     minWidth: '100%',
@@ -323,13 +338,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: 'white',
   },
-  hourlyContainerRow: {
+  fullContainerRow: {
     flexDirection: 'row',
     paddingBottom: 10,
     paddingLeft: 10,
     paddingRight: 10,
   },
-  hourlyContainerColumn: {
+  fullContainerColumn: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center', // Add this line
+    padding: 5,
+  },
+  halfContainer: {
+    borderRadius: 10,
+    borderWidth: 1,
+    minWidth: '47.75%',
+    maxWidth: '47.75%',
+    marginTop: 20,
+    backgroundColor: 'white',
+  },
+  halfContainerRow: {
+    flexDirection: 'row',
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  halfContainerColumn: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center', // Add this line
@@ -338,27 +373,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  dailyContainer: {
-    borderRadius: 10,
-    borderWidth: 1,
-    minWidth: '100%',
-    maxWidth: '100%',
-    marginTop: 20,
-    backgroundColor: 'white',
-  },
-  dailyContainerRow: {
-    flexDirection: 'row',
-    paddingBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  dailyContainerColumn: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center', // Add this line
-    padding: 5,
+    marginBottom: 10,
   },
   smallText: {
     fontSize: 20,
