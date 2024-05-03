@@ -114,7 +114,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: 'lightgrey',
+    backgroundColor: '#1B1B1B',
   },
   inputContainer: {
     flexDirection: 'row',

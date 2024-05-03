@@ -192,7 +192,7 @@ export default function Details({ route }: { route: RouteParams }) {
     const hours = new Date(time).getHours();
     const amPm = hours >= 12 ? 'PM' : 'AM';
     const formattedHours = hours % 12 || 12;
-    return `${formattedHours} ${amPm}`;
+    return `${formattedHours}${amPm}`;
   };
 
   return (
@@ -217,7 +217,8 @@ export default function Details({ route }: { route: RouteParams }) {
               {mapWeatherCodeToDescription(weatherData.current?.weather_code)}
             </Text>
             <Text style={styles.temperature3}>
-              H:{weatherData.daily?.temperature_2m_max[0].toFixed(0)}° | L:
+              H: {weatherData.daily?.temperature_2m_max[0].toFixed(0)}°{' '}
+              <Text style={{ fontWeight: 'bold' }}> · </Text> L:{' '}
               {weatherData.daily?.temperature_2m_min[0].toFixed(0)}
             </Text>
           </View>
@@ -290,7 +291,7 @@ export default function Details({ route }: { route: RouteParams }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightgrey',
+    backgroundColor: '#1B1B1B',
     padding: 15,
   },
   contentContainer: {
@@ -300,16 +301,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: 'white',
   },
   infoContainer: {
     flexDirection: 'column',
     alignItems: 'center',
   },
   image: {
-    width: 80,
-    height: 80,
-    marginBottom: 10,
+    width: 150,
+    height: 150,
   },
   image2: {
     width: 40,
@@ -320,19 +320,23 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: 'white',
   },
   temperature2: {
     fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: 'white',
   },
   temperature3: {
     fontSize: 20,
     marginBottom: 10,
+    color: 'white',
   },
   fullContainer: {
     borderRadius: 10,
     borderWidth: 1,
+    borderColor: '#8B8B8B',
     minWidth: '100%',
     maxWidth: '100%',
     marginTop: 20,
@@ -353,6 +357,7 @@ const styles = StyleSheet.create({
   halfContainer: {
     borderRadius: 10,
     borderWidth: 1,
+    borderColor: '#8B8B8B',
     minWidth: '47.75%',
     maxWidth: '47.75%',
     marginTop: 20,

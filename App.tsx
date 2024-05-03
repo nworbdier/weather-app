@@ -17,7 +17,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function RootStack() {
   return (
     <NavigationContainer>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       {Platform.OS !== 'ios' && <View style={styles.customTopView} />}
       <SafeAreaView style={styles.appTop} />
       <Stack.Navigator initialRouteName="Overview">
@@ -31,11 +31,11 @@ export default function RootStack() {
 const styles = StyleSheet.create({
   app: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#1B1B1B',
   },
   appTop: {
     flex: 0, // Make sure SafeAreaView doesn't stretch
-    backgroundColor: 'lightgrey',
+    backgroundColor: '#1B1B1B',
   },
   customTopView: {
     width: '100%',
