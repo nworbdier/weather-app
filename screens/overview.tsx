@@ -74,15 +74,17 @@ export default function Overview() {
         <TextInput
           style={styles.input}
           placeholder="Search for a city or zip code..."
+          placeholderTextColor="white" // Set the placeholder text color to white
           value={searchText}
           onChangeText={(text) => setSearchText(text)}
         />
-        {searchText !== '' && ( // Render Cancel button only if there is text in the input
+        {searchText !== '' && (
           <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-            <Text>Cancel</Text>
+            <Text style={{ color: 'white' }}>Cancel</Text>
           </TouchableOpacity>
         )}
       </View>
+
       <FlatList
         data={searchResults}
         renderItem={({ item }) => {
@@ -100,7 +102,10 @@ export default function Overview() {
                 })
               }
               style={styles.item}>
-              <Text>{`${searchResult.name}, ${searchResult.admin1}, ${searchResult.admin2}, ${searchResult.country}`}</Text>
+              <Text
+                style={{
+                  color: 'white',
+                }}>{`${searchResult.name}, ${searchResult.admin1}, ${searchResult.admin2}, ${searchResult.country}`}</Text>
             </TouchableOpacity>
           );
         }}
@@ -125,6 +130,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderColor: 'gray',
+    color: 'white',
     borderWidth: 2,
     paddingHorizontal: 8,
     borderRadius: 10,
