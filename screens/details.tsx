@@ -7,6 +7,9 @@ import { RootStackParamList } from '../App';
 
 type DetailsScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Overview'>;
 
+// At the top of the file, add this type
+type WeatherCode = keyof typeof weatherIcons;
+
 // Function to map weather code to description
 const mapWeatherCodeToDescription = (code: number) => {
   switch (code) {
@@ -72,67 +75,37 @@ const mapWeatherCodeToDescription = (code: number) => {
 };
 
 // Function to map weather code to description
-const mapWeatherCodeToImage = (code: number) => {
-  switch (code) {
-    case 0:
-      return require('../assets/WeatherIcons/day_clear_sky.png');
-    case 1:
-      return require('../assets/WeatherIcons/day_foggy.png');
-    case 2:
-      return require('../assets/WeatherIcons/day_cloudy.png');
-    case 3:
-      return require('../assets/WeatherIcons/cloudy.png');
-    case 45:
-      return require('../assets/WeatherIcons/foggy.png');
-    case 48:
-      return require('../assets/WeatherIcons/foggy.png');
-    case 51:
-      return require('../assets/WeatherIcons/day_rain_light.png');
-    case 53:
-      return require('../assets/WeatherIcons/day_rain_moderate.png');
-    case 55:
-      return require('../assets/WeatherIcons/day_rain.png');
-    case 56:
-      return require('../assets/WeatherIcons/day_rain_light.png');
-    case 57:
-      return require('../assets/WeatherIcons/day_rain.png');
-    case 61:
-      return require('../assets/WeatherIcons/day_rain_light.png');
-    case 63:
-      return require('../assets/WeatherIcons/day_rain_moderate.png');
-    case 65:
-      return require('../assets/WeatherIcons/day_rain.png');
-    case 66:
-      return require('../assets/WeatherIcons/day_rain_light.png');
-    case 67:
-      return require('../assets/WeatherIcons/day_rain.png');
-    case 71:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 73:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 75:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 77:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 80:
-      return require('../assets/WeatherIcons/day_rain_light.png');
-    case 81:
-      return require('../assets/WeatherIcons/day_rain_moderate.png');
-    case 82:
-      return require('../assets/WeatherIcons/day_thunderstorm_light.png');
-    case 85:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 86:
-      return require('../assets/WeatherIcons/day_snow.png');
-    case 95:
-      return require('../assets/WeatherIcons/day_thunderstorm_light.png');
-    case 96:
-      return require('../assets/WeatherIcons/day_rain_hail.png');
-    case 99:
-      return require('../assets/WeatherIcons/day_rain_hail.png');
-    default:
-      return 'Unknown';
-  }
+const weatherIcons = {
+  0: '☀️', // Clear sky
+  1: '🌤️', // Mainly clear
+  2: '⛅', // Partly cloudy
+  3: '☁️', // Overcast
+  45: '🌫️', // Foggy
+  48: '🌫️', // Depositing rime fog
+  51: '🌧️', // Light drizzle
+  53: '🌧️', // Moderate drizzle
+  55: '🌧️', // Dense drizzle
+  61: '🌧️', // Slight rain
+  63: '🌧️', // Moderate rain
+  65: '🌦️', // Heavy rain
+  71: '❄️', // Slight snow fall
+  73: '❄️', // Moderate snow fall
+  75: '❄️', // Heavy snow fall
+  77: '❄️', // Snow grains
+  80: '🌧️', // Slight rain showers
+  81: '🌧️', // Moderate rain showers
+  82: '🌧️', // Violent rain showers
+  85: '❄️', // Slight snow showers
+  86: '❄️', // Heavy snow showers
+  95: '⛈️', // Thunderstorm
+  96: '⛈️', // Thunderstorm with light hail
+  99: '⛈️', // Thunderstorm with heavy hail
+};
+
+// Near the top of the file, add this helper function
+const getWeatherIcon = (code: number) => {
+  const weatherCode = code as WeatherCode;
+  return { uri: weatherIcons[weatherCode] };
 };
 
 interface RouteParams {
@@ -206,7 +179,7 @@ export default function Details({ route }: { route: RouteParams }) {
         <View>
           <View style={styles.infoContainer}>
             <Image
-              source={mapWeatherCodeToImage(weatherData.current?.weather_code)}
+              source={getWeatherIcon(weatherData.current?.weather_code)}
               style={styles.image}
               resizeMode="contain"
             />
@@ -232,7 +205,7 @@ export default function Details({ route }: { route: RouteParams }) {
                     <View key={index} style={styles.fullContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : formatTime(day)}</Text>
                       <Image
-                        source={mapWeatherCodeToImage(weatherData.hourly.weather_code[index + 1])}
+                        source={getWeatherIcon(weatherData.hourly.weather_code[index + 1])}
                         style={styles.image2}
                         resizeMode="contain"
                       />
@@ -258,7 +231,7 @@ export default function Details({ route }: { route: RouteParams }) {
                     <View key={index} style={styles.fullContainerColumn}>
                       <Text style={styles.dateText}>{index === 0 ? 'Now' : getDayOfWeek(day)}</Text>
                       <Image
-                        source={mapWeatherCodeToImage(weatherData.daily.weather_code[index])}
+                        source={getWeatherIcon(weatherData.daily.weather_code[index])}
                         style={styles.image2}
                         resizeMode="contain"
                       />
